@@ -1,0 +1,212 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
+}
+
+/* Import Tajawal font weights */
+body, h1, h2, h3, h4, h5, h6, p, span, a, button, input, select, textarea, label, th, td, div {
+  font-family: 'Tajawal', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1D355E;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2B4A7A;
+}
+
+/* Selection */
+::selection {
+  background: #F3B423;
+  color: #1D355E;
+}
+
+/* Line clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Cart drawer */
+#cartDrawer {
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Product image aspect ratio */
+.aspect-\[4\/5\] {
+  aspect-ratio: 4/5;
+}
+
+/* Buttons */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Filter size buttons */
+.size-filter-btn {
+  user-select: none;
+}
+
+/* Admin table responsive */
+@media (max-width: 768px) {
+  .admin-table-cell {
+    min-width: 120px;
+  }
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+}
+
+/* Custom focus ring */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+/* RTL specific adjustments */
+[dir="ltr"] .ml-auto {
+  margin-left: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: auto;
+}
+
+/* Cart notification animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal backdrop blur */
+#productModal, #checkoutModal, #orderConfirmModal, #ordersModal {
+  backdrop-filter: blur(4px);
+}
+
+/* Product hover effect */
+#productsGrid > div:hover .rounded-2xl {
+  border-color: #F3B423;
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Print styles */
+@media print {
+  header, footer, #cartDrawer, #cartOverlay {
+    display: none !important;
+  }
+}
+
+/* Header fixed color */
+
+/* Category slider */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.snap-x { scroll-snap-type: x mandatory; }
+.snap-center { scroll-snap-align: center; }
+.category-dot.active { background-color: #F3B423; }
+
+/* Hero image hover zoom container */
+.hero-image-zoom {
+  overflow: hidden;
+}
+.hero-image-zoom img {
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.hero-image-zoom:hover img {
+  transform: scale(1.08);
+}
+
+/* Product card 3D lift */
+.product-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -12px rgba(29, 53, 94, 0.25);
+}
+
+/* RTL-safe rotation for arrows */
+[dir="rtl"] .rotate-rtl-180 {
+  transform: rotate(180deg);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #F3B423 0%, #D49A1A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shine effect on buttons */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  animation: shine 3s ease-in-out infinite;
+}
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Page sections entrance animation */
+.section-fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+.section-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
