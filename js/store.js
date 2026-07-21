@@ -671,7 +671,7 @@ function removeCartItem(idx) {
   cart.splice(idx, 1);
   localStorage.setItem('cuteKidsCart', JSON.stringify(cart));
   renderCart();
-  if (cart.length === 0) appliedCouponCode = null;
+  if (cart.length === 0) setAppliedCoupon(null);
 }
 
 function updateCartSummary() {
@@ -930,7 +930,7 @@ function applyCouponCode() {
     return;
   }
 
-  appliedCouponCode = coupon.code;
+  setAppliedCoupon(coupon.code);
   input.value = '';
   renderCart();
   alert(t('couponApplied') + '! ' + result.label);
@@ -1085,7 +1085,7 @@ async function placeOrder() {
 
     orders.unshift(saved);
     cart = [];
-    appliedCouponCode = null;
+    setAppliedCoupon(null);
     localStorage.setItem('cuteKidsCart', JSON.stringify(cart));
     closeCheckout();
     renderCart();
