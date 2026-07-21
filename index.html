@@ -151,7 +151,7 @@
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuMDYiLz48L3N2Zz4=')] opacity-60"></div>
 
       <!-- Default Content (shown when no slides saved) -->
-      <div id="heroDefaultContent" class="w-full">
+      <div id="heroDefaultContent" class="w-full invisible">
         <div class="absolute inset-0 lg:inset-auto lg:left-1/2 lg:w-1/2 lg:h-full">
           <img src="https://images.unsplash.com/photo-1560506840-ec148e82a604?w=1200&q=80" alt="Kids Fashion" class="w-full h-full object-cover">
           <div class="absolute inset-0 bg-gradient-to-l from-transparent via-[#1D355E]/30 to-[#1D355E]/90 lg:bg-gradient-to-l lg:from-transparent lg:via-[#1D355E]/40 lg:to-[#1D355E]"></div>
@@ -796,12 +796,18 @@
 
     // ===================== HERO SLIDER =====================
     async function initHeroSlider() {
-      let slides = [];
-      try { const d = await fetchSetting('hero_slides'); if (d && Array.isArray(d)) { slides = d; } } catch {}
-      if (!slides || slides.length === 0) return;
-
       const defaultContent = document.getElementById('heroDefaultContent');
       const sliderContent = document.getElementById('heroSliderContent');
+
+      let slides = [];
+      try { const d = await fetchSetting('hero_slides'); if (d && Array.isArray(d)) { slides = d; } } catch {}
+
+      // No slides → reveal default hero content
+      if (!slides || slides.length === 0) {
+        if (defaultContent) defaultContent.classList.remove('invisible');
+        return;
+      }
+
       if (!defaultContent || !sliderContent) return;
 
       // Preload first slide image to prevent flash of empty hero
