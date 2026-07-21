@@ -1287,31 +1287,36 @@ function recalcOrderTotal() {
   document.getElementById('eo_total').textContent = total.toFixed(0) + ' ج';
 }
 
+function removeEditOrderItem(idx) {
+  const row = document.querySelector(`.edit-order-item[data-index="${idx}"]`);
+  if (row) row.remove();
+  recalcOrderTotal();
+}
+
 async function saveOrderChanges() {
   const orderId = Number(document.getElementById('editOrderId').value);
+  const order = orders.find(o => o.id === orderId);
+  const oldItems = order ? JSON.parse(JSON.stringify(order.items || [])) : [];
+
   const items = [...document.querySelectorAll('.edit-order-item')].map(row => {
     const productId = row.querySelector('.eo-item-product-id')?.value || '';
-    const nameAr = (() => {
-      const p = (typeof products !== 'undefined' ? products : []).find(pp => String(pp.id) === String(productId));
-      return p ? p.name_ar : '';
-    })();
-    const nameEn = (() => {
-      const p = (typeof products !== 'undefined' ? products : []).find(pp => String(pp.id) === String(productId));
-      return p ? p.name_en : '';
-    })();
-    const sel = row.querySelector('select');
-    const label = sel ? sel.options[sel.selectedIndex]?.text || '' : '';
+    const product = (typeof products !== 'undefined' ? products : []).find(pp => String(pp.id) === String(productId));
+    const savedImage = row.querySelector('.eo-item-image')?.value || '';
+    const savedCategory = row.querySelector('.eo-item-category')?.value || '';
+    const savedNameAr = row.querySelector('.eo-item-name-ar')?.value || '';
+    const savedNameEn = row.querySelector('.eo-item-name-en')?.value || '';
     return {
       productId: productId ? Number(productId) : null,
       size: row.querySelector('.eo-item-size')?.value || '',
       quantity: parseInt(row.querySelector('.eo-item-qty')?.value) || 1,
       price: parseFloat(row.querySelector('.eo-item-price')?.value) || 0,
-      name_ar: nameAr,
-      name_en: nameEn || label,
-      image: '',
-      category: '',
+      name_ar: product?.name_ar || savedNameAr,
+      name_en: product?.name_en || savedNameEn,
+      image: product?.images?.[0] || savedImage || '',
+      category: product?.category || savedCategory || '',
     };
-  });
+  }).filter(i => i.productId);
+
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const shipping = parseFloat(document.getElementById('eo_shipping')?.value) || 0;
   const discount = parseFloat(document.getElementById('eo_discount')?.value) || 0;
@@ -1324,6 +1329,7 @@ async function saveOrderChanges() {
     customer_city: document.getElementById('eo_customer_city')?.value.trim() || '',
     customer_address: document.getElementById('eo_customer_address')?.value.trim() || '',
     notes: document.getElementById('eo_notes')?.value.trim() || '',
+    admin_notes: document.getElementById('eo_admin_notes')?.value.trim() || '',
     items,
     subtotal,
     shipping,
@@ -1335,8 +1341,9 @@ async function saveOrderChanges() {
   };
 
   try {
+    // Adjust stock: compute per-(productId,size) diffs and apply
+    await adjustStockForOrderEdit(oldItems, items);
     await window.updateOrder(orderId, updates);
-    const order = orders.find(o => o.id === orderId);
     if (order) Object.assign(order, updates);
     closeEditOrderModal();
     renderAdminOrders();
@@ -1344,6 +1351,44 @@ async function saveOrderChanges() {
     alert('خطأ في حفظ التعديلات: ' + err.message);
   }
 }
+
+// Compute inventory delta between old and new items and apply via upsertVariant
+async function adjustStockForOrderEdit(oldItems, newItems) {
+  const map = new Map(); // key = productId|size, value = { productId, size, delta }
+  // Old items: returning quantity to stock => +qty
+  for (const it of oldItems) {
+    if (!it.productId || !it.size) continue;
+    const key = `${it.productId}|${it.size}`;
+    const cur = map.get(key) || { productId: it.productId, size: it.size, delta: 0 };
+    cur.delta += Number(it.quantity) || 0;
+    map.set(key, cur);
+  }
+  // New items: consume from stock => -qty
+  for (const it of newItems) {
+    if (!it.productId || !it.size) continue;
+    const key = `${it.productId}|${it.size}`;
+    const cur = map.get(key) || { productId: it.productId, size: it.size, delta: 0 };
+    cur.delta -= Number(it.quantity) || 0;
+    map.set(key, cur);
+  }
+  // Apply deltas by updating stock on each variant
+  const tasks = [];
+  for (const { productId, size, delta } of map.values()) {
+    if (delta === 0) continue;
+    const product = (typeof products !== 'undefined' ? products : []).find(p => String(p.id) === String(productId));
+    if (!product) continue;
+    const variant = (product.variants || product.product_variants || []).find(v => String(v.size) === String(size));
+    const currentStock = variant ? Number(variant.stock) || 0 : 0;
+    const newStock = Math.max(0, currentStock + delta);
+    if (variant && typeof window.updateVariant === 'function' && variant.id) {
+      tasks.push(window.updateVariant(variant.id, newStock).then(() => { variant.stock = newStock; }));
+    } else if (typeof window.upsertVariant === 'function') {
+      tasks.push(window.upsertVariant(productId, size, newStock));
+    }
+  }
+  await Promise.all(tasks);
+}
+
 
 function closeEditOrderModal() {
   const modal = document.getElementById('editOrderModal');
