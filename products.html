@@ -455,16 +455,31 @@
       }
     };
 
-    // Override renderFilters for mobile sync
+    // Override renderFilters for mobile sync (avoid duplicate IDs breaking event handlers)
     const origRenderFilters = renderFilters;
     renderFilters = function() {
       origRenderFilters();
       const mobileContent = document.getElementById('mobileFiltersContent');
-      if (mobileContent) {
-        const desktop = document.getElementById('filtersContainer');
-        if (desktop) mobileContent.innerHTML = desktop.innerHTML;
-      }
+      const desktop = document.getElementById('filtersContainer');
+      if (!mobileContent || !desktop) return;
+      // Clone desktop HTML then suffix all IDs with _m so they don't collide
+      let html = desktop.innerHTML.replace(/id="([^"]+)"/g, 'id="$1_m"').replace(/for="([^"]+)"/g, 'for="$1_m"');
+      mobileContent.innerHTML = html;
+      // Wire the two selects — inline onclick=global calls read desktop IDs, which is fine
+      const mCat = document.getElementById('filterCategory_m');
+      if (mCat) mCat.addEventListener('change', function() {
+        const d = document.getElementById('filterCategory');
+        if (d) d.value = this.value;
+        onFilterCategoryChange();
+      });
+      const mAvail = document.getElementById('filterAvailability_m');
+      if (mAvail) mAvail.addEventListener('change', function() {
+        filters.availability = this.value;
+        renderProducts();
+        renderFilters();
+      });
     };
+
 
     // Override updateUILanguage to update lang toggle text
     const origUpdateUI = updateUILanguage;

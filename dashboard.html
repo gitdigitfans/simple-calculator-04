@@ -223,6 +223,13 @@
               ${order.admin_modified_at ? `<span class="text-xs text-amber-500 mr-2">${new Date(order.admin_modified_at).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US')} ${new Date(order.admin_modified_at).toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
             </div>
           ` : ''}
+          ${order.notes_admin ? `
+            <div class="mb-3 px-4 py-2.5 bg-blue-50 border border-blue-200 rounded-xl text-sm">
+              <div class="font-semibold text-blue-700 mb-1">💬 ${currentLang === 'ar' ? 'رسالة من الإدارة' : 'Message from admin'}</div>
+              <div class="text-blue-800 whitespace-pre-line">${order.notes_admin}</div>
+            </div>
+          ` : ''}
+
           <div class="space-y-2 text-sm">
             ${order.items.map(item => `
               <div class="flex justify-between text-gray-600">

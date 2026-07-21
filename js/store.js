@@ -37,8 +37,17 @@ let categories = [];
 let coupons = [];
 let cart = [];
 let orders = [];
-let appliedCouponCode = null;
+let appliedCouponCode = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appliedCouponCode')) || null;
 let offerInterval = null;
+
+function setAppliedCoupon(code) {
+  appliedCouponCode = code || null;
+  try {
+    if (code) sessionStorage.setItem('appliedCouponCode', code);
+    else sessionStorage.removeItem('appliedCouponCode');
+  } catch (e) {}
+}
+
 
 function normalizeProduct(p) {
   const base = {
@@ -662,7 +671,7 @@ function removeCartItem(idx) {
   cart.splice(idx, 1);
   localStorage.setItem('cuteKidsCart', JSON.stringify(cart));
   renderCart();
-  if (cart.length === 0) appliedCouponCode = null;
+  if (cart.length === 0) setAppliedCoupon(null);
 }
 
 function updateCartSummary() {
@@ -677,7 +686,7 @@ function updateCartSummary() {
   let couponDiscount = 0;
   let couponLabel = '';
   if (appliedCouponCode) {
-    const coupon = coupons.find(c => c.code === appliedCouponCode && !c.autoApply);
+    const coupon = coupons.find(c => c.code === appliedCouponCode && c.active !== false);
     if (coupon) {
       const result = calculateCouponDiscount(coupon, cart, subtotal - discountTotal);
       couponDiscount = result.amount;
@@ -812,11 +821,23 @@ function calculateCouponDiscount(coupon, cartItems, currentTotal) {
     if (subtotal < cond.minAmount) return { amount: 0, label: '' };
   }
   if (cond.category) {
-    affectedItems = cartItems.filter(i => i.category === cond.category);
+    // Support both slug and id for backward compatibility
+    const catMatch = (i) => {
+      if (i.category === cond.category) return true;
+      if (typeof categories !== 'undefined') {
+        const c = categories.find(c => String(c.id) === String(cond.category) || c.slug === cond.category);
+        if (c && (i.category === c.slug || String(i.category) === String(c.id))) return true;
+      }
+      return false;
+    };
+    affectedItems = affectedItems.filter(catMatch);
     if (affectedItems.length === 0) return { amount: 0, label: '' };
   }
-  if (cond.size) {
-    affectedItems = cartItems.filter(i => i.size === cond.size);
+  if (cond.sizes && cond.sizes.length > 0) {
+    affectedItems = affectedItems.filter(i => cond.sizes.includes(i.size));
+    if (affectedItems.length === 0) return { amount: 0, label: '' };
+  } else if (cond.size) {
+    affectedItems = affectedItems.filter(i => i.size === cond.size);
     if (affectedItems.length === 0) return { amount: 0, label: '' };
   }
 
@@ -831,6 +852,7 @@ function calculateCouponDiscount(coupon, cartItems, currentTotal) {
 
   return { amount, label };
 }
+
 
 // ===================== OFFER COUNTDOWN BANNER =====================
 function getActiveOffers() {
@@ -895,7 +917,7 @@ function applyCouponCode() {
   const code = input?.value.trim().toUpperCase();
   if (!code) return;
 
-  const coupon = coupons.find(c => c.code?.toUpperCase() === code && !c.auto_apply && c.active);
+  const coupon = coupons.find(c => c.code?.toUpperCase() === code && c.active);
   if (!coupon) {
     alert(t('invalidCoupon'));
     return;
@@ -908,7 +930,7 @@ function applyCouponCode() {
     return;
   }
 
-  appliedCouponCode = coupon.code;
+  setAppliedCoupon(coupon.code);
   input.value = '';
   renderCart();
   alert(t('couponApplied') + '! ' + result.label);
@@ -939,7 +961,8 @@ function updateCheckoutSummary() {
 
   let couponDiscount = 0;
   if (appliedCouponCode) {
-    const coupon = coupons.find(c => c.code === appliedCouponCode && !c.auto_apply);
+    const coupon = coupons.find(c => c.code === appliedCouponCode && c.active !== false);
+
     if (coupon) {
       const result = calculateCouponDiscount(coupon, cart, subtotal - discountTotal);
       couponDiscount = result.amount;
@@ -1011,7 +1034,7 @@ async function placeOrder() {
   let discountTotal = autoDiscounts.reduce((s, d) => s + d.discountAmount, 0);
   let couponDiscount = 0;
   if (appliedCouponCode) {
-    const coupon = coupons.find(c => c.code === appliedCouponCode && !c.auto_apply);
+    const coupon = coupons.find(c => c.code === appliedCouponCode && c.active !== false);
     if (coupon) {
       const result = calculateCouponDiscount(coupon, cart, subtotal - discountTotal);
       couponDiscount = result.amount;
@@ -1063,7 +1086,7 @@ async function placeOrder() {
 
     orders.unshift(saved);
     cart = [];
-    appliedCouponCode = null;
+    setAppliedCoupon(null);
     localStorage.setItem('cuteKidsCart', JSON.stringify(cart));
     closeCheckout();
     renderCart();

@@ -1049,6 +1049,9 @@ function openEditOrder(orderId) {
   document.getElementById('eo_customer_city').value = order.customer_city || '';
   document.getElementById('eo_customer_address').value = order.customer_address || '';
   document.getElementById('eo_notes').value = order.notes || '';
+  const adminNotesEl = document.getElementById('eo_notes_admin');
+  if (adminNotesEl) adminNotesEl.value = order.notes_admin || '';
+
   document.getElementById('eo_shipping').value = order.shipping || 0;
   document.getElementById('eo_coupon_code').value = order.coupon_code || '';
   document.getElementById('eo_discount').value = order.discount || 0;
@@ -1090,10 +1093,17 @@ function createEditOrderModal() {
             <input id="eo_customer_address" type="text" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none">
           </div>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">ملاحظات العميل</label>
-          <textarea id="eo_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none"></textarea>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">📝 ملاحظة العميل</label>
+            <textarea id="eo_notes" rows="2" class="w-full px-3 py-2.5 border border-yellow-200 bg-yellow-50 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none" placeholder="ملاحظة كتبها العميل عند الطلب"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">💬 ملاحظة الإدارة (تظهر للعميل)</label>
+            <textarea id="eo_notes_admin" rows="2" class="w-full px-3 py-2.5 border border-blue-200 bg-blue-50 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none" placeholder="مثال: يتم شحن الطلب غداً"></textarea>
+          </div>
         </div>
+
         <hr>
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-[#1D355E]">المنتجات</h3>
@@ -1135,100 +1145,140 @@ function createEditOrderModal() {
 function renderEditOrderItems(items) {
   const container = document.getElementById('eo_items');
   const orderId = Number(document.getElementById('editOrderId').value);
-  const order = orders.find(o => o.id === orderId);
   if (!items || items.length === 0) {
     container.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">لا توجد منتجات</p>';
+    document.getElementById('editOrderDisplayId').textContent = orderId;
     return;
   }
   container.innerHTML = items.map((item, idx) => `
-    <div class="flex items-center gap-2 bg-gray-50 rounded-xl p-3 edit-order-item" data-index="${idx}">
+    <div class="flex items-start gap-2 bg-gray-50 rounded-xl p-3 edit-order-item" data-index="${idx}">
+      <img class="eo-item-thumb w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-white border border-gray-100" src="${item.image || ''}" alt="" onerror="this.style.visibility='hidden'">
       <div class="flex-1 min-w-0">
-        <select onchange="updateEditItemName(this, ${idx})" class="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#F3B423] outline-none">
-          <option value="">اختر منتج</option>
-          ${(typeof products !== 'undefined' ? products : []).map(p => `
-            <option value="${p.id}" ${String(p.id) === String(item.productId) ? 'selected' : ''}>${p.name_ar || p.name_en}</option>
-          `).join('')}
-        </select>
+        <div class="mb-1">
+          ${renderProductPicker(idx, item.productId, item.name_ar || item.name_en)}
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <select onchange="updateEditItemSizes(this, ${idx})" class="eo-item-size px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-20 focus:ring-2 focus:ring-[#F3B423] outline-none">
+            ${getEditItemSizes(item.productId, item.size)}
+          </select>
+          <input type="number" class="eo-item-qty px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-16 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="${item.quantity}" min="1" onchange="recalcOrderTotal()">
+          <input type="number" class="eo-item-price px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-24 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="${item.price}" min="0" step="0.01" onchange="recalcOrderTotal()" oninput="recalcOrderTotal()">
+          <span class="text-sm font-semibold text-[#1D355E] w-20 text-center eo-item-total">${(item.price * item.quantity).toFixed(0)} ج</span>
+          <input type="hidden" class="eo-item-product-id" value="${item.productId || ''}">
+          <input type="hidden" class="eo-item-image" value="${item.image || ''}">
+          <input type="hidden" class="eo-item-category" value="${item.category || ''}">
+          <input type="hidden" class="eo-item-name-ar" value="${(item.name_ar || '').replace(/"/g, '&quot;')}">
+          <input type="hidden" class="eo-item-name-en" value="${(item.name_en || '').replace(/"/g, '&quot;')}">
+          <button onclick="removeEditOrderItem(${idx})" class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
       </div>
-      <input type="text" class="eo-item-name hidden" value="${item.name_ar || item.name_en}">
-      <input type="hidden" class="eo-item-product-id" value="${item.productId || ''}">
-      <select onchange="updateEditItemSizes(this, ${idx})" class="eo-item-size px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-20 focus:ring-2 focus:ring-[#F3B423] outline-none">
-        ${getEditItemSizes(item.productId, item.size)}
-      </select>
-      <input type="number" class="eo-item-qty px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-16 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="${item.quantity}" min="1" onchange="recalcOrderTotal()">
-      <input type="number" class="eo-item-price px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-20 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="${item.price}" min="0" step="0.01" onchange="recalcOrderTotal()" oninput="recalcOrderTotal()">
-      <span class="text-sm font-semibold text-[#1D355E] w-16 text-center eo-item-total">${(item.price * item.quantity).toFixed(0)}</span>
-      <button onclick="removeEditOrderItem(${idx})" class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-      </button>
     </div>
   `).join('');
   document.getElementById('editOrderDisplayId').textContent = orderId;
 }
 
-function getEditItemSizes(productId, currentSize) {
-  if (!productId) return '<option value="">—</option>';
-  const product = (typeof products !== 'undefined' ? products : []).find(p => String(p.id) === String(productId));
-  if (!product) return '<option value="">—</option>';
-  const sizes = product.variants || product.product_variants || [];
-  return sizes.map(v => `
-    <option value="${v.size}" ${String(v.size) === String(currentSize) ? 'selected' : ''}>${v.size}</option>
-  `).join('');
+// Rich product picker with image thumbnails (searchable dropdown)
+function renderProductPicker(idx, selectedProductId, selectedName) {
+  const productsList = (typeof products !== 'undefined' ? products : []);
+  const selected = productsList.find(p => String(p.id) === String(selectedProductId));
+  const displayLabel = selected
+    ? `${selected.name_ar || selected.name_en} — ${selected.price} ج (#${selected.id})`
+    : (selectedName || 'اختر منتج');
+  return `
+    <div class="relative eo-picker" data-idx="${idx}">
+      <button type="button" onclick="toggleProductPicker(${idx})" class="w-full flex items-center justify-between gap-2 px-2 py-1.5 border border-gray-200 rounded-lg text-sm text-right bg-white hover:border-[#F3B423]">
+        <span class="truncate">${displayLabel}</span>
+        <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div class="eo-picker-menu hidden absolute z-30 mt-1 w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-xl max-h-72 overflow-hidden">
+        <input type="text" oninput="filterProductPicker(${idx}, this.value)" placeholder="🔍 ابحث بالاسم أو الرقم..." class="w-full px-3 py-2 border-b border-gray-100 text-sm outline-none">
+        <div class="eo-picker-list overflow-y-auto max-h-60">
+          ${productsList.map(p => `
+            <div class="eo-picker-item flex items-center gap-2 px-2 py-2 hover:bg-[#F3B423]/10 cursor-pointer border-b border-gray-50 last:border-0" data-name="${(p.name_ar || '') + ' ' + (p.name_en || '') + ' ' + p.id}" onclick="selectProductInPicker(${idx}, ${p.id})">
+              <img src="${p.images?.[0] || ''}" class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0" onerror="this.style.visibility='hidden'">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-[#1D355E] truncate">${p.name_ar || p.name_en}</div>
+                <div class="text-xs text-gray-500">#${p.id} · ${p.price} ج</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
 }
 
-function updateEditItemName(sel, idx) {
-  const productId = sel.value;
-  const row = sel.closest('.edit-order-item');
+function toggleProductPicker(idx) {
+  document.querySelectorAll('.eo-picker-menu').forEach(m => {
+    if (m.closest('.eo-picker')?.dataset.idx !== String(idx)) m.classList.add('hidden');
+  });
+  const picker = document.querySelector(`.eo-picker[data-idx="${idx}"] .eo-picker-menu`);
+  picker?.classList.toggle('hidden');
+}
+
+function filterProductPicker(idx, q) {
+  const list = document.querySelectorAll(`.eo-picker[data-idx="${idx}"] .eo-picker-item`);
+  const lower = q.toLowerCase();
+  list.forEach(el => {
+    el.style.display = el.dataset.name.toLowerCase().includes(lower) ? '' : 'none';
+  });
+}
+
+function selectProductInPicker(idx, productId) {
+  const product = (typeof products !== 'undefined' ? products : []).find(p => String(p.id) === String(productId));
+  if (!product) return;
+  const row = document.querySelector(`.edit-order-item[data-index="${idx}"]`);
+  if (!row) return;
   row.querySelector('.eo-item-product-id').value = productId;
-  const product = (typeof products !== 'undefined' ? products : []).find(p => String(p.id) === String(productId));
-  if (product) {
-    row.querySelector('.eo-item-name').value = product.name_ar || product.name_en;
-    row.querySelector('.eo-item-price').value = product.price;
-  }
+  row.querySelector('.eo-item-image').value = product.images?.[0] || '';
+  row.querySelector('.eo-item-category').value = product.category || '';
+  row.querySelector('.eo-item-name-ar').value = product.name_ar || '';
+  row.querySelector('.eo-item-name-en').value = product.name_en || '';
+  row.querySelector('.eo-item-price').value = product.price;
+  const thumb = row.querySelector('.eo-item-thumb');
+  if (thumb) { thumb.src = product.images?.[0] || ''; thumb.style.visibility = 'visible'; }
+  const btn = row.querySelector('.eo-picker button span');
+  if (btn) btn.textContent = `${product.name_ar || product.name_en} — ${product.price} ج (#${product.id})`;
   const sizeSel = row.querySelector('.eo-item-size');
-  sizeSel.innerHTML = getEditItemSizes(productId, '');
-  recalcOrderTotal();
-}
-
-function updateEditItemSizes(sel, idx) {
+  if (sizeSel) sizeSel.innerHTML = getEditItemSizes(productId, '');
+  document.querySelector(`.eo-picker[data-idx="${idx}"] .eo-picker-menu`)?.classList.add('hidden');
   recalcOrderTotal();
 }
 
 function addEditOrderItem() {
   const container = document.getElementById('eo_items');
+  // Clear "no items" message if present
+  if (container.querySelector('p')) container.innerHTML = '';
   const idx = container.querySelectorAll('.edit-order-item').length;
   const div = document.createElement('div');
-  div.className = 'flex items-center gap-2 bg-gray-50 rounded-xl p-3 edit-order-item';
+  div.className = 'flex items-start gap-2 bg-gray-50 rounded-xl p-3 edit-order-item';
   div.dataset.index = idx;
   div.innerHTML = `
+    <img class="eo-item-thumb w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-white border border-gray-100" src="" alt="" style="visibility:hidden">
     <div class="flex-1 min-w-0">
-      <select onchange="updateEditItemName(this, ${idx})" class="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#F3B423] outline-none">
-        <option value="">اختر منتج</option>
-        ${(typeof products !== 'undefined' ? products : []).map(p => `
-          <option value="${p.id}">${p.name_ar || p.name_en}</option>
-        `).join('')}
-      </select>
+      <div class="mb-1">${renderProductPicker(idx, '', '')}</div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <select class="eo-item-size px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-20 focus:ring-2 focus:ring-[#F3B423] outline-none">
+          <option value="">—</option>
+        </select>
+        <input type="number" class="eo-item-qty px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-16 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="1" min="1" onchange="recalcOrderTotal()">
+        <input type="number" class="eo-item-price px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-24 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="0" min="0" step="0.01" onchange="recalcOrderTotal()" oninput="recalcOrderTotal()">
+        <span class="text-sm font-semibold text-[#1D355E] w-20 text-center eo-item-total">0 ج</span>
+        <input type="hidden" class="eo-item-product-id" value="">
+        <input type="hidden" class="eo-item-image" value="">
+        <input type="hidden" class="eo-item-category" value="">
+        <input type="hidden" class="eo-item-name-ar" value="">
+        <input type="hidden" class="eo-item-name-en" value="">
+        <button onclick="this.closest('.edit-order-item').remove(); recalcOrderTotal()" class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>
     </div>
-    <input type="text" class="eo-item-name hidden" value="">
-    <input type="hidden" class="eo-item-product-id" value="">
-    <select class="eo-item-size px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-20 focus:ring-2 focus:ring-[#F3B423] outline-none">
-      <option value="">—</option>
-    </select>
-    <input type="number" class="eo-item-qty px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-16 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="1" min="1" onchange="recalcOrderTotal()">
-    <input type="number" class="eo-item-price px-2 py-1.5 border border-gray-200 rounded-lg text-sm w-20 text-center focus:ring-2 focus:ring-[#F3B423] outline-none" value="0" min="0" step="0.01" onchange="recalcOrderTotal()" oninput="recalcOrderTotal()">
-    <span class="text-sm font-semibold text-[#1D355E] w-16 text-center eo-item-total">0</span>
-    <button onclick="this.closest('.edit-order-item').remove(); recalcOrderTotal()" class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-    </button>
   `;
   container.appendChild(div);
 }
 
-function removeEditOrderItem(idx) {
-  const row = document.querySelector(`.edit-order-item[data-index="${idx}"]`);
-  if (row) row.remove();
-  recalcOrderTotal();
-}
 
 function recalcOrderTotal() {
   const subtotal = [...document.querySelectorAll('.edit-order-item')].reduce((sum, row) => {
@@ -1247,31 +1297,36 @@ function recalcOrderTotal() {
   document.getElementById('eo_total').textContent = total.toFixed(0) + ' ج';
 }
 
+function removeEditOrderItem(idx) {
+  const row = document.querySelector(`.edit-order-item[data-index="${idx}"]`);
+  if (row) row.remove();
+  recalcOrderTotal();
+}
+
 async function saveOrderChanges() {
   const orderId = Number(document.getElementById('editOrderId').value);
+  const order = orders.find(o => o.id === orderId);
+  const oldItems = order ? JSON.parse(JSON.stringify(order.items || [])) : [];
+
   const items = [...document.querySelectorAll('.edit-order-item')].map(row => {
     const productId = row.querySelector('.eo-item-product-id')?.value || '';
-    const nameAr = (() => {
-      const p = (typeof products !== 'undefined' ? products : []).find(pp => String(pp.id) === String(productId));
-      return p ? p.name_ar : '';
-    })();
-    const nameEn = (() => {
-      const p = (typeof products !== 'undefined' ? products : []).find(pp => String(pp.id) === String(productId));
-      return p ? p.name_en : '';
-    })();
-    const sel = row.querySelector('select');
-    const label = sel ? sel.options[sel.selectedIndex]?.text || '' : '';
+    const product = (typeof products !== 'undefined' ? products : []).find(pp => String(pp.id) === String(productId));
+    const savedImage = row.querySelector('.eo-item-image')?.value || '';
+    const savedCategory = row.querySelector('.eo-item-category')?.value || '';
+    const savedNameAr = row.querySelector('.eo-item-name-ar')?.value || '';
+    const savedNameEn = row.querySelector('.eo-item-name-en')?.value || '';
     return {
       productId: productId ? Number(productId) : null,
       size: row.querySelector('.eo-item-size')?.value || '',
       quantity: parseInt(row.querySelector('.eo-item-qty')?.value) || 1,
       price: parseFloat(row.querySelector('.eo-item-price')?.value) || 0,
-      name_ar: nameAr,
-      name_en: nameEn || label,
-      image: '',
-      category: '',
+      name_ar: product?.name_ar || savedNameAr,
+      name_en: product?.name_en || savedNameEn,
+      image: product?.images?.[0] || savedImage || '',
+      category: product?.category || savedCategory || '',
     };
-  });
+  }).filter(i => i.productId);
+
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const shipping = parseFloat(document.getElementById('eo_shipping')?.value) || 0;
   const discount = parseFloat(document.getElementById('eo_discount')?.value) || 0;
@@ -1284,6 +1339,7 @@ async function saveOrderChanges() {
     customer_city: document.getElementById('eo_customer_city')?.value.trim() || '',
     customer_address: document.getElementById('eo_customer_address')?.value.trim() || '',
     notes: document.getElementById('eo_notes')?.value.trim() || '',
+    notes_admin: document.getElementById('eo_notes_admin')?.value.trim() || '',
     items,
     subtotal,
     shipping,
@@ -1295,8 +1351,9 @@ async function saveOrderChanges() {
   };
 
   try {
+    // Adjust stock: compute per-(productId,size) diffs and apply
+    await adjustStockForOrderEdit(oldItems, items);
     await window.updateOrder(orderId, updates);
-    const order = orders.find(o => o.id === orderId);
     if (order) Object.assign(order, updates);
     closeEditOrderModal();
     renderAdminOrders();
@@ -1304,6 +1361,44 @@ async function saveOrderChanges() {
     alert('خطأ في حفظ التعديلات: ' + err.message);
   }
 }
+
+// Compute inventory delta between old and new items and apply via upsertVariant
+async function adjustStockForOrderEdit(oldItems, newItems) {
+  const map = new Map(); // key = productId|size, value = { productId, size, delta }
+  // Old items: returning quantity to stock => +qty
+  for (const it of oldItems) {
+    if (!it.productId || !it.size) continue;
+    const key = `${it.productId}|${it.size}`;
+    const cur = map.get(key) || { productId: it.productId, size: it.size, delta: 0 };
+    cur.delta += Number(it.quantity) || 0;
+    map.set(key, cur);
+  }
+  // New items: consume from stock => -qty
+  for (const it of newItems) {
+    if (!it.productId || !it.size) continue;
+    const key = `${it.productId}|${it.size}`;
+    const cur = map.get(key) || { productId: it.productId, size: it.size, delta: 0 };
+    cur.delta -= Number(it.quantity) || 0;
+    map.set(key, cur);
+  }
+  // Apply deltas by updating stock on each variant
+  const tasks = [];
+  for (const { productId, size, delta } of map.values()) {
+    if (delta === 0) continue;
+    const product = (typeof products !== 'undefined' ? products : []).find(p => String(p.id) === String(productId));
+    if (!product) continue;
+    const variant = (product.variants || product.product_variants || []).find(v => String(v.size) === String(size));
+    const currentStock = variant ? Number(variant.stock) || 0 : 0;
+    const newStock = Math.max(0, currentStock + delta);
+    if (variant && typeof window.updateVariant === 'function' && variant.id) {
+      tasks.push(window.updateVariant(variant.id, newStock).then(() => { variant.stock = newStock; }));
+    } else if (typeof window.upsertVariant === 'function') {
+      tasks.push(window.upsertVariant(productId, size, newStock));
+    }
+  }
+  await Promise.all(tasks);
+}
+
 
 function closeEditOrderModal() {
   const modal = document.getElementById('editOrderModal');
