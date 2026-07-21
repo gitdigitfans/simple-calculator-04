@@ -150,89 +150,8 @@
       <!-- Background pattern overlay -->
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBmaWxsLW9wYWNpdHk9IjAuMDYiLz48L3N2Zz4=')] opacity-60"></div>
 
-      <!-- Default Content (shown when no slides saved) -->
-      <div id="heroDefaultContent" class="w-full invisible">
-        <div class="absolute inset-0 lg:inset-auto lg:left-1/2 lg:w-1/2 lg:h-full">
-          <img src="https://images.unsplash.com/photo-1560506840-ec148e82a604?w=1200&q=80" alt="Kids Fashion" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-gradient-to-l from-transparent via-[#1D355E]/30 to-[#1D355E]/90 lg:bg-gradient-to-l lg:from-transparent lg:via-[#1D355E]/40 lg:to-[#1D355E]"></div>
-        </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-            <div class="text-center lg:text-right z-10">
-              <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-[#F3B423] text-sm font-bold px-5 py-2 rounded-full mb-6 border border-white/10">
-                <span class="w-2 h-2 bg-[#F3B423] rounded-full inline-block"></span>
-                Cute Kids
-              </div>
-              <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-6" data-i18n="heroTitle">
-                أجمل <span class="text-[#F3B423]">ملابس</span> الأطفال
-              </h1>
-              <p class="text-lg sm:text-xl text-gray-300/90 mb-8 max-w-xl lg:max-w-none leading-relaxed" data-i18n="heroSubtitle">
-                تصميمات عصرية بأعلى جودة وراحة لطفلك
-              </p>
-              <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                <a href="/products" class="group inline-flex items-center gap-3 bg-[#F3B423] hover:bg-[#D49A1A] text-[#1D355E] font-bold px-8 py-4 rounded-2xl text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-[#F3B423]/40 hover:-translate-y-1">
-                  <span data-i18n="shopNow">تسوق الآن</span>
-                  <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                </a>
-                <a href="/about" class="inline-flex items-center gap-2 text-white/80 hover:text-white font-semibold px-6 py-4 rounded-2xl border border-white/20 hover:bg-white/5 transition-all duration-300">
-                  <span data-i18n="aboutTitle">من نحن</span>
-                </a>
-              </div>
-              <div class="flex items-center gap-8 mt-10 justify-center lg:justify-start">
-                <div class="text-center">
-                  <div class="text-3xl font-black text-[#F3B423]" id="totalProductsDisplay">12+</div>
-                  <div class="text-xs text-gray-400 font-medium mt-1" data-i18n="products">منتج</div>
-                </div>
-                <div class="w-px h-10 bg-white/20"></div>
-                <div class="text-center">
-                  <div class="text-3xl font-black text-white">100%</div>
-                  <div class="text-xs text-gray-400 font-medium mt-1">جودة عالية</div>
-                </div>
-                <div class="w-px h-10 bg-white/20"></div>
-                <div class="text-center">
-                  <div class="text-3xl font-black text-white"><svg class="w-8 h-8 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
-                  <div class="text-xs text-gray-400 font-medium mt-1">توصيل سريع</div>
-                </div>
-              </div>
-            </div>
-            <div class="relative h-[400px] md:h-[500px] hidden lg:block">
-              <div class="absolute top-10 right-10 w-[80%] h-[80%] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#1D355E]/40 to-transparent z-10"></div>
-                <img src="https://images.unsplash.com/photo-1777307224150-2d8535401a53?w=600&q=80" alt="Kids Collection" class="w-full h-full object-cover">
-              </div>
-              <div class="absolute bottom-6 left-6 z-20 bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-2xl">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-[#F3B423] flex items-center justify-center"><svg class="w-5 h-5 text-[#1D355E]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
-                  <div>
-                    <div class="font-black text-[#1D355E] text-lg">4.9</div>
-                    <div class="text-xs text-gray-500 font-medium">تقييم العملاء</div>
-                  </div>
-                </div>
-              </div>
-              <div class="absolute top-0 left-0 w-24 h-24 rounded-full bg-[#F3B423]/20 border-4 border-[#F3B423]/30 flex items-center justify-center">
-                <svg class="w-8 h-8 text-[#F3B423]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              </div>
-            </div>
-            <div class="lg:hidden flex justify-center">
-              <div class="relative w-64 h-64">
-                <div class="absolute inset-0 rounded-full bg-[#F3B423]/20 blur-3xl"></div>
-                <div class="relative w-full h-full rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
-                  <img src="https://images.unsplash.com/photo-1560506840-ec148e82a604?w=400&q=80" alt="Kids" class="w-full h-full object-cover">
-                </div>
-                <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-3 shadow-xl">
-                  <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#F3B423]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <span class="font-bold text-[#1D355E]">4.9</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Slider Content (shown when slides exist) -->
-      <div id="heroSliderContent" class="hidden absolute inset-0 w-full h-full bg-[#1D355E]">
+      <!-- Slider Content (always visible) -->
+      <div id="heroSliderContent" class="absolute inset-0 w-full h-full bg-[#1D355E]">
         <div id="heroSlidesWrapper" class="w-full h-full relative"></div>
         <button id="heroPrev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center backdrop-blur-sm border border-white/10 transition text-3xl leading-none hover:scale-110">‹</button>
         <button id="heroNext" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center backdrop-blur-sm border border-white/10 transition text-3xl leading-none hover:scale-110">›</button>
@@ -796,31 +715,14 @@
 
     // ===================== HERO SLIDER =====================
     async function initHeroSlider() {
-      const defaultContent = document.getElementById('heroDefaultContent');
       const sliderContent = document.getElementById('heroSliderContent');
+      if (!sliderContent) return;
 
       let slides = [];
       try { const d = await fetchSetting('hero_slides'); if (d && Array.isArray(d)) { slides = d; } } catch {}
 
-      // No slides → reveal default hero content
-      if (!slides || slides.length === 0) {
-        if (defaultContent) defaultContent.classList.remove('invisible');
-        return;
-      }
+      if (!slides || slides.length === 0) return;
 
-      if (!defaultContent || !sliderContent) return;
-
-      // Preload first slide image to prevent flash of empty hero
-      await new Promise((resolve) => {
-        const img = new Image();
-        img.onload = resolve;
-        img.onerror = resolve;
-        img.src = slides[0].image;
-        setTimeout(resolve, 2500); // safety timeout
-      });
-
-      defaultContent.style.display = 'none';
-      sliderContent.classList.remove('hidden');
 
 
       const wrapper = document.getElementById('heroSlidesWrapper');
