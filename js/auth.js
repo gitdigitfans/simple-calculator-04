@@ -21,26 +21,30 @@ function updateAuthUI() {
   const loginBtn = document.getElementById('loginBtn');
   const userMenu = document.getElementById('userMenu');
   const userName = document.getElementById('userName');
-  const adminLink = document.getElementById('adminLink');
 
-  if (currentUser) {
+  const isLoggedIn = !!currentUser;
+  const isAdmin = ['admin', 'staff'].includes(currentProfile?.role);
+
+  if (isLoggedIn) {
     if (loginBtn) loginBtn.classList.add('hidden');
     if (userMenu) {
       userMenu.classList.remove('hidden');
       if (userName) userName.textContent = currentProfile?.full_name || currentUser.email?.split('@')[0] || 'User';
     }
-    if (adminLink) {
-      adminLink.classList.toggle('hidden', !['admin', 'staff'].includes(currentProfile?.role));
-    }
-    const adminLinkDropdown = document.getElementById('adminLinkDropdown');
-    if (adminLinkDropdown) {
-      adminLinkDropdown.classList.toggle('hidden', !['admin', 'staff'].includes(currentProfile?.role));
-    }
   } else {
     if (loginBtn) loginBtn.classList.remove('hidden');
     if (userMenu) userMenu.classList.add('hidden');
-    if (adminLink) adminLink.classList.add('hidden');
   }
+
+  // Toggle "My Orders" links (visible only when logged in) across all pages
+  document.querySelectorAll('[data-i18n="navOrders"], [data-i18n="myOrders"]').forEach(el => {
+    el.classList.toggle('hidden', !isLoggedIn);
+  });
+
+  // Toggle "Dashboard" links (visible only for admin/staff) across all pages
+  document.querySelectorAll('[data-i18n="navDashboard"], [id="adminLink"], [id="adminLinkDropdown"]').forEach(el => {
+    el.classList.toggle('hidden', !isAdmin);
+  });
 }
 
 function openLoginModal() {
