@@ -90,9 +90,9 @@
             </div>
             <a href="/about" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition" data-i18n="navAbout">من نحن</a>
             <a href="/contact" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition" data-i18n="navContact">اتصل بنا</a>
-            <a href="/dashboard" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition" data-i18n="navOrders">طلباتي</a>
-            <a href="/dashboard" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition" data-i18n="navDashboard">لوحة التحكم</a>
-            <a href="/admin" id="adminLink" class="px-4 py-2 rounded-xl text-sm font-semibold text-[#F3B423] bg-[#F3B423]/10 hover:bg-[#F3B423]/20 transition hidden">Admin</a>
+            <a href="/dashboard" id="navOrdersLink" class="hidden px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition" data-i18n="navOrders">طلباتي</a>
+            <a href="/admin" id="adminLink" class="hidden px-4 py-2 rounded-xl text-sm font-semibold text-[#F3B423] bg-[#F3B423]/10 hover:bg-[#F3B423]/20 transition" data-i18n="navDashboard">لوحة التحكم</a>
+
           </nav>
           <div class="flex items-center gap-2">
             <button id="loginBtn" onclick="openLoginModal()" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#F3B423] text-[#1D355E] hover:bg-[#D49A1A] transition whitespace-nowrap" data-i18n="signIn">تسجيل دخول</button>
@@ -134,8 +134,9 @@
           </div>
           <a href="/about" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100" data-i18n="navAbout">من نحن</a>
           <a href="/contact" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100" data-i18n="navContact">اتصل بنا</a>
-          <a href="/dashboard" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100" data-i18n="navOrders">طلباتي</a>
-          <a href="/admin" id="adminLinkMobile" class="hidden px-3 py-2 rounded-xl text-sm font-semibold text-[#F3B423] hover:bg-gray-100">Admin</a>
+          <a href="/dashboard" id="navOrdersMobile" onclick="toggleMobileMenu()" class="hidden px-3 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100" data-i18n="navOrders">طلباتي</a>
+          <a href="/admin" id="adminLinkMobile" class="hidden px-3 py-2 rounded-xl text-sm font-semibold text-[#F3B423] hover:bg-gray-100" data-i18n="navDashboard">لوحة التحكم</a>
+
           <hr class="border-gray-100">
           <div id="mobileAuthSection">
             <button onclick="openLoginModal();toggleMobileMenu()" id="mobileLoginBtn" class="w-full text-right px-3 py-2 rounded-xl text-sm font-semibold text-[#1D355E] hover:bg-gray-100" data-i18n="signIn">تسجيل دخول</button>
@@ -570,10 +571,17 @@
         if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
         if (mobileLogoutBtn) mobileLogoutBtn.classList.add('hidden');
       }
+      const isAdmin = ['admin', 'staff'].includes(currentProfile?.role);
+      const isLoggedIn = !!currentUser;
+      const navOrders = document.getElementById('navOrdersLink');
+      const navOrdersM = document.getElementById('navOrdersMobile');
+      if (navOrders) navOrders.classList.toggle('hidden', !isLoggedIn);
+      if (navOrdersM) navOrdersM.classList.toggle('hidden', !isLoggedIn);
       const adminMobile = document.getElementById('adminLinkMobile');
-      if (adminMobile) {
-        adminMobile.classList.toggle('hidden', !['admin', 'staff'].includes(currentProfile?.role));
-      }
+      if (adminMobile) adminMobile.classList.toggle('hidden', !isAdmin);
+      const adminDesk = document.getElementById('adminLink');
+      if (adminDesk) adminDesk.classList.toggle('hidden', !isAdmin);
+
     };
 
     // Render categories grid
