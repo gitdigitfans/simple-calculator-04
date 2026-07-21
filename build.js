@@ -27,7 +27,7 @@ for (const item of fs.readdirSync(root)) {
 
   if (stat.isDirectory()) {
     fs.cpSync(source, target, { recursive: true });
-  } else if (item.endsWith('.html') || item === '_headers') {
+  } else if (item.endsWith('.html') || item === '_headers' || item === '_redirects') {
     fs.copyFileSync(source, target);
   }
 }
