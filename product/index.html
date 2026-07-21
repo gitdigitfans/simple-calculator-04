@@ -359,13 +359,15 @@
       renderNavCategories();
       renderMobileCategories();
 
-      // Read product ID from URL path (e.g., /product/12) or fallback to query param
-      const pathParts = window.location.pathname.split('/');
-      let id = pathParts[pathParts.length - 1];
-      if (!id || id === 'product') {
-        const params = new URLSearchParams(window.location.search);
-        id = params.get('id');
+      // Read product ID from query string (?id=) first, then from path (/product/12)
+      const params = new URLSearchParams(window.location.search);
+      let id = params.get('id');
+      if (!id) {
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const last = pathParts[pathParts.length - 1] || '';
+        if (last && last !== 'product' && last !== 'product.html') id = last;
       }
+      if (id && /^\d+$/.test(String(id).trim())) id = String(id).trim(); else id = null;
       if (id) {
         selectedProductId = parseInt(id);
         selectedSize = null;
