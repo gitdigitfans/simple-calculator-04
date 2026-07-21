@@ -526,8 +526,10 @@
         document.getElementById('checkoutContent').classList.add('hidden');
         document.getElementById('emptyCartMsg').classList.remove('hidden');
       } else {
+        syncCouponFromCart();
         updateCheckoutSummary();
       }
+
     });
   </script>
 
