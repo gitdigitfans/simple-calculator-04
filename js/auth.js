@@ -1,6 +1,13 @@
 let currentUser = null;
 let currentProfile = null;
 
+function syncAuthBodyClasses() {
+  const isLoggedIn = !!currentUser;
+  const isAdmin = ['admin', 'staff'].includes(currentProfile?.role);
+  document.body.classList.toggle('auth-user', isLoggedIn);
+  document.body.classList.toggle('auth-admin', isLoggedIn && isAdmin);
+}
+
 async function initAuth() {
   if (typeof window.getSession !== 'function') return;
   const session = await window.getSession();
@@ -24,6 +31,7 @@ function updateAuthUI() {
 
   const isLoggedIn = !!currentUser;
   const isAdmin = ['admin', 'staff'].includes(currentProfile?.role);
+  syncAuthBodyClasses();
 
   if (isLoggedIn) {
     if (loginBtn) loginBtn.classList.add('hidden');

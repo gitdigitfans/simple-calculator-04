@@ -13,6 +13,36 @@ body {
   direction: rtl;
 }
 
+/* Auth-gated navigation: hidden by default to prevent flash before auth loads */
+header nav [data-i18n="navOrders"],
+header nav [data-i18n="navDashboard"],
+#mobileMenu [data-i18n="navOrders"],
+#mobileMenu [data-i18n="navDashboard"],
+#adminLink,
+#adminLinkDropdown,
+#adminLinkMobile {
+  display: none !important;
+}
+
+body.auth-user header nav [data-i18n="navOrders"] {
+  display: inline-flex !important;
+}
+
+body.auth-user #mobileMenu [data-i18n="navOrders"] {
+  display: block !important;
+}
+
+body.auth-admin header nav [data-i18n="navDashboard"],
+body.auth-admin #adminLink {
+  display: inline-flex !important;
+}
+
+body.auth-admin #mobileMenu [data-i18n="navDashboard"],
+body.auth-admin #adminLinkMobile,
+body.auth-admin #adminLinkDropdown {
+  display: block !important;
+}
+
 /* Import Tajawal font weights */
 body, h1, h2, h3, h4, h5, h6, p, span, a, button, input, select, textarea, label, th, td, div {
   font-family: 'Tajawal', sans-serif;
