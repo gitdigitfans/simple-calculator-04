@@ -37,8 +37,17 @@ let categories = [];
 let coupons = [];
 let cart = [];
 let orders = [];
-let appliedCouponCode = null;
+let appliedCouponCode = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('appliedCouponCode')) || null;
 let offerInterval = null;
+
+function setAppliedCoupon(code) {
+  appliedCouponCode = code || null;
+  try {
+    if (code) sessionStorage.setItem('appliedCouponCode', code);
+    else sessionStorage.removeItem('appliedCouponCode');
+  } catch (e) {}
+}
+
 
 function normalizeProduct(p) {
   const base = {
