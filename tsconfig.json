@@ -18,6 +18,5 @@
       "~/*": ["./src/*"]
     }
   },
-  "files": [],
-  "include": []
+  "include": ["types/**/*.ts"]
 }
