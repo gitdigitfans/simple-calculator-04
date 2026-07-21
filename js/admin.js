@@ -1049,6 +1049,9 @@ function openEditOrder(orderId) {
   document.getElementById('eo_customer_city').value = order.customer_city || '';
   document.getElementById('eo_customer_address').value = order.customer_address || '';
   document.getElementById('eo_notes').value = order.notes || '';
+  const adminNotesEl = document.getElementById('eo_admin_notes');
+  if (adminNotesEl) adminNotesEl.value = order.admin_notes || '';
+
   document.getElementById('eo_shipping').value = order.shipping || 0;
   document.getElementById('eo_coupon_code').value = order.coupon_code || '';
   document.getElementById('eo_discount').value = order.discount || 0;
@@ -1090,10 +1093,17 @@ function createEditOrderModal() {
             <input id="eo_customer_address" type="text" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none">
           </div>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">ملاحظات العميل</label>
-          <textarea id="eo_notes" rows="2" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none"></textarea>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">📝 ملاحظة العميل</label>
+            <textarea id="eo_notes" rows="2" class="w-full px-3 py-2.5 border border-yellow-200 bg-yellow-50 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none" placeholder="ملاحظة كتبها العميل عند الطلب"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">💬 ملاحظة الإدارة (تظهر للعميل)</label>
+            <textarea id="eo_admin_notes" rows="2" class="w-full px-3 py-2.5 border border-blue-200 bg-blue-50 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none" placeholder="مثال: يتم شحن الطلب غداً"></textarea>
+          </div>
         </div>
+
         <hr>
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-[#1D355E]">المنتجات</h3>
