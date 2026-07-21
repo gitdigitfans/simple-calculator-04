@@ -342,6 +342,81 @@
       if (el) el.classList.toggle('hidden');
     }
 
+    function getProductIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      let id = params.get('id');
+      if (!id) {
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const last = pathParts[pathParts.length - 1] || '';
+        if (last && last !== 'product' && last !== 'product.html') id = last;
+      }
+      return id && /^\d+$/.test(String(id).trim()) ? parseInt(String(id).trim(), 10) : null;
+    }
+
+    function showProductPageMessage(message) {
+      const container = document.getElementById('productDetailContent');
+      if (!container) return;
+      container.innerHTML = `
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+          <div class="text-5xl mb-4">🧸</div>
+          <p class="text-lg font-bold text-[#1D355E] mb-4">${message}</p>
+          <a href="/products" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#F3B423] text-[#1D355E] font-bold hover:bg-[#D49A1A] transition">العودة للمنتجات</a>
+        </div>
+      `;
+    }
+
+    function showProductPageLoading() {
+      const container = document.getElementById('productDetailContent');
+      if (!container) return;
+      container.innerHTML = `
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+          <div class="flex justify-center gap-2 mb-4">
+            <span class="w-3 h-3 rounded-full bg-[#F3B423] animate-bounce"></span>
+            <span class="w-3 h-3 rounded-full bg-[#F3B423] animate-bounce" style="animation-delay:.12s"></span>
+            <span class="w-3 h-3 rounded-full bg-[#F3B423] animate-bounce" style="animation-delay:.24s"></span>
+          </div>
+          <p class="text-sm font-semibold text-gray-500">جاري تحميل المنتج...</p>
+        </div>
+      `;
+    }
+
+    async function loadSingleProductPage() {
+      const id = getProductIdFromUrl();
+      if (!id) {
+        showProductPageMessage('المنتج غير موجود');
+        return;
+      }
+
+      selectedProductId = id;
+      selectedSize = null;
+      selectedQty = 1;
+      showProductPageLoading();
+
+      let product = products.find(p => Number(p.id) === id);
+      if (!product) {
+        try {
+          const fetchedProduct = await fetchProduct(id);
+          if (fetchedProduct) {
+            product = normalizeProduct(fetchedProduct);
+            products = [product, ...products.filter(p => Number(p.id) !== id)];
+          }
+        } catch (e) {
+          console.error('fetchProduct error:', e);
+        }
+      }
+
+      if (!product) {
+        showProductPageMessage('المنتج غير موجود أو لم يتم تحميله');
+        return;
+      }
+
+      renderProductDetailContent(product);
+      const lang = currentLang;
+      const name = lang === 'ar' ? product.name_ar : product.name_en;
+      document.getElementById('productPageTitle').textContent = name;
+      document.title = name + ' - Cute Kids';
+    }
+
     // Cart overlay sync
     const cartDrawer = document.getElementById('cartDrawer');
     const cartOverlay = document.getElementById('cartOverlay');
@@ -359,27 +434,7 @@
       renderNavCategories();
       renderMobileCategories();
 
-      // Read product ID from query string (?id=) first, then from path (/product/12)
-      const params = new URLSearchParams(window.location.search);
-      let id = params.get('id');
-      if (!id) {
-        const pathParts = window.location.pathname.split('/').filter(Boolean);
-        const last = pathParts[pathParts.length - 1] || '';
-        if (last && last !== 'product' && last !== 'product.html') id = last;
-      }
-      if (id && /^\d+$/.test(String(id).trim())) id = String(id).trim(); else id = null;
-      if (id) {
-        selectedProductId = parseInt(id);
-        selectedSize = null;
-        selectedQty = 1;
-        const product = products.find(p => p.id === selectedProductId);
-        if (product) {
-          renderProductDetail();
-          const lang = currentLang;
-          document.getElementById('productPageTitle').textContent = lang === 'ar' ? product.name_ar : product.name_en;
-          document.title = (lang === 'ar' ? product.name_ar : product.name_en) + ' - Cute Kids';
-        }
-      }
+      await loadSingleProductPage();
     });
   </script>
 
