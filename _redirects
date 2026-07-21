@@ -1,0 +1,8 @@
+/products      /products.html         200
+/about         /about.html            200
+/contact       /contact.html          200
+/dashboard     /dashboard.html        200
+/admin         /admin.html            200
+/checkout      /checkout.html         200
+/thank-you     /thank-you.html        200
+/product/*     /product.html?id=:splat 200
