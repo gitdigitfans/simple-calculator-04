@@ -686,7 +686,7 @@ function updateCartSummary() {
   let couponDiscount = 0;
   let couponLabel = '';
   if (appliedCouponCode) {
-    const coupon = coupons.find(c => c.code === appliedCouponCode && !c.autoApply);
+    const coupon = coupons.find(c => c.code === appliedCouponCode && c.active !== false);
     if (coupon) {
       const result = calculateCouponDiscount(coupon, cart, subtotal - discountTotal);
       couponDiscount = result.amount;
@@ -917,7 +917,7 @@ function applyCouponCode() {
   const code = input?.value.trim().toUpperCase();
   if (!code) return;
 
-  const coupon = coupons.find(c => c.code?.toUpperCase() === code && !c.auto_apply && c.active);
+  const coupon = coupons.find(c => c.code?.toUpperCase() === code && c.active);
   if (!coupon) {
     alert(t('invalidCoupon'));
     return;
