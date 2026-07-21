@@ -384,7 +384,8 @@ let selectedSize = null;
 let selectedQty = 1;
 
 function openProductDetail(id) {
-  goToPage('/product/' + id);
+  if (!id) return;
+  window.location.href = '/product.html?id=' + encodeURIComponent(id);
 }
 
 function closeProductDetail() {
