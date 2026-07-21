@@ -1049,8 +1049,8 @@ function openEditOrder(orderId) {
   document.getElementById('eo_customer_city').value = order.customer_city || '';
   document.getElementById('eo_customer_address').value = order.customer_address || '';
   document.getElementById('eo_notes').value = order.notes || '';
-  const adminNotesEl = document.getElementById('eo_admin_notes');
-  if (adminNotesEl) adminNotesEl.value = order.admin_notes || '';
+  const adminNotesEl = document.getElementById('eo_notes_admin');
+  if (adminNotesEl) adminNotesEl.value = order.notes_admin || '';
 
   document.getElementById('eo_shipping').value = order.shipping || 0;
   document.getElementById('eo_coupon_code').value = order.coupon_code || '';
@@ -1100,7 +1100,7 @@ function createEditOrderModal() {
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">💬 ملاحظة الإدارة (تظهر للعميل)</label>
-            <textarea id="eo_admin_notes" rows="2" class="w-full px-3 py-2.5 border border-blue-200 bg-blue-50 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none" placeholder="مثال: يتم شحن الطلب غداً"></textarea>
+            <textarea id="eo_notes_admin" rows="2" class="w-full px-3 py-2.5 border border-blue-200 bg-blue-50 rounded-xl text-sm focus:ring-2 focus:ring-[#F3B423] outline-none" placeholder="مثال: يتم شحن الطلب غداً"></textarea>
           </div>
         </div>
 
@@ -1339,7 +1339,7 @@ async function saveOrderChanges() {
     customer_city: document.getElementById('eo_customer_city')?.value.trim() || '',
     customer_address: document.getElementById('eo_customer_address')?.value.trim() || '',
     notes: document.getElementById('eo_notes')?.value.trim() || '',
-    admin_notes: document.getElementById('eo_admin_notes')?.value.trim() || '',
+    notes_admin: document.getElementById('eo_notes_admin')?.value.trim() || '',
     items,
     subtotal,
     shipping,
