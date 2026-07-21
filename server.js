@@ -14,6 +14,16 @@ const MIME = {
 };
 
 const BASE = __dirname;
+const PAGE_REWRITES = {
+  '/about': '/about.html',
+  '/contact': '/contact.html',
+  '/products': '/products.html',
+  '/product': '/product.html',
+  '/admin': '/admin.html',
+  '/dashboard': '/dashboard.html',
+  '/checkout': '/checkout.html',
+  '/thank-you': '/thank-you.html',
+};
 const R2 = {
   accountId: 'e3f59a7681d4e1f491c87a3a358c8206',
   accessKey: '35c39ac4c0afcf637740008f98e9398f',
@@ -84,10 +94,19 @@ http.createServer((req, res) => {
     return;
   }
 
-  let url = req.url.split('?')[0];
+  let url = decodeURIComponent(req.url.split('?')[0]);
   if (url === '/') url = '/index.html';
-  const filePath = BASE + url;
-  const ext = path.extname(filePath);
+  if (/^\/product\/[^/]+$/.test(url)) url = '/product.html';
+  if (PAGE_REWRITES[url]) url = PAGE_REWRITES[url];
+
+  const filePath = path.normalize(path.join(BASE, url));
+  if (!filePath.startsWith(BASE)) {
+    res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end('<h1>403 - Forbidden</h1><a href="/">رجوع</a>');
+    return;
+  }
+
+  const ext = path.extname(filePath) || '.html';
   fs.readFile(filePath, (err, data) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -97,8 +116,9 @@ http.createServer((req, res) => {
       res.end(data);
     }
   });
-}).listen(3000, () => {
+}).listen(process.env.PORT || 8080, () => {
+  const port = process.env.PORT || 8080;
   console.log('🚀 Cute Kids Store running at:');
-  console.log('   ➜ Store:  http://localhost:3000');
-  console.log('   ➜ Admin: http://localhost:3000/admin.html');
+  console.log('   ➜ Store:  http://localhost:' + port);
+  console.log('   ➜ Admin: http://localhost:' + port + '/admin.html');
 });

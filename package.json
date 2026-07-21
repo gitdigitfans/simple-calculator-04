@@ -1,31 +1,11 @@
 {
-  "name": "cute-kids-store",
-  "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "start": "vite preview"
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node build.js",
+    "build:dev": "npm run build"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.4",
-    "@tanstack/react-router": "^1.120.3",
-    "@tanstack/react-start": "^1.120.3",
-    "clsx": "^2.1.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.4",
-    "zustand": "^5.0.5"
-  },
-  "devDependencies": {
-    "@tanstack/router-devtools": "^1.120.3",
-    "@tanstack/router-plugin": "^1.120.3",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^6.0.3",
-    "typescript": "^5.8.3",
-    "vite": "^8.1.5",
-    "vite-tsconfig-paths": "^6.1.1"
+    "pg": "^8.21.0"
   }
 }

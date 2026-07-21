@@ -2,9 +2,4 @@
 node_modules/
 .wrangler/
 .env
-src/routeTree.gen.ts
-.output
-.tanstack
-dist
-*.log
 

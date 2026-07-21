@@ -2,6 +2,22 @@
   Content-Type: text/html; charset=utf-8
 /*.html
   Content-Type: text/html; charset=utf-8
+/products
+  Content-Type: text/html; charset=utf-8
+/product
+  Content-Type: text/html; charset=utf-8
+/about
+  Content-Type: text/html; charset=utf-8
+/contact
+  Content-Type: text/html; charset=utf-8
+/dashboard
+  Content-Type: text/html; charset=utf-8
+/admin
+  Content-Type: text/html; charset=utf-8
+/checkout
+  Content-Type: text/html; charset=utf-8
+/thank-you
+  Content-Type: text/html; charset=utf-8
 /*.js
   Content-Type: application/javascript; charset=utf-8
 /*.css
