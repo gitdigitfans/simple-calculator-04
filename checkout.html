@@ -316,7 +316,7 @@
       const input = document.getElementById('checkoutCouponInput');
       const code = input?.value.trim().toUpperCase();
       if (!code) return;
-      const coupon = coupons.find(c => c.code?.toUpperCase() === code && !c.auto_apply && c.active);
+      const coupon = coupons.find(c => c.code?.toUpperCase() === code && c.active);
       if (!coupon) {
         alert(t('invalidCoupon'));
         return;
@@ -327,12 +327,29 @@
         alert(t('invalidCoupon'));
         return;
       }
-      appliedCouponCode = coupon.code;
+      setAppliedCoupon(coupon.code);
       input.value = '';
       renderCart();
       updateCheckoutSummary();
       alert(t('couponApplied') + '! ' + result.label);
     }
+
+    // Auto-apply coupon saved from cart drawer
+    function syncCouponFromCart() {
+      if (appliedCouponCode) {
+        const coupon = coupons.find(c => c.code?.toUpperCase() === appliedCouponCode.toUpperCase() && c.active);
+        if (coupon) {
+          const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+          const result = calculateCouponDiscount(coupon, cart, subtotal);
+          if (result.amount > 0) {
+            updateCheckoutSummary();
+            return;
+          }
+        }
+        setAppliedCoupon(null);
+      }
+    }
+
 
     // Override showCheckout to close drawer (already on checkout page)
     window.showCheckout = function() {
