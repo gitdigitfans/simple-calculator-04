@@ -391,6 +391,8 @@ window.deleteProduct = deleteProduct;
 window.updateProduct = updateProduct;
 window.createProduct = createProduct;
 window.upsertVariant = upsertVariant;
+window.updateVariant = updateVariant;
+
 window.createCategory = createCategory;
 window.updateCategory = updateCategory;
 window.deleteCategoryDb = deleteCategoryDb;
