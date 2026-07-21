@@ -812,11 +812,23 @@ function calculateCouponDiscount(coupon, cartItems, currentTotal) {
     if (subtotal < cond.minAmount) return { amount: 0, label: '' };
   }
   if (cond.category) {
-    affectedItems = cartItems.filter(i => i.category === cond.category);
+    // Support both slug and id for backward compatibility
+    const catMatch = (i) => {
+      if (i.category === cond.category) return true;
+      if (typeof categories !== 'undefined') {
+        const c = categories.find(c => String(c.id) === String(cond.category) || c.slug === cond.category);
+        if (c && (i.category === c.slug || String(i.category) === String(c.id))) return true;
+      }
+      return false;
+    };
+    affectedItems = affectedItems.filter(catMatch);
     if (affectedItems.length === 0) return { amount: 0, label: '' };
   }
-  if (cond.size) {
-    affectedItems = cartItems.filter(i => i.size === cond.size);
+  if (cond.sizes && cond.sizes.length > 0) {
+    affectedItems = affectedItems.filter(i => cond.sizes.includes(i.size));
+    if (affectedItems.length === 0) return { amount: 0, label: '' };
+  } else if (cond.size) {
+    affectedItems = affectedItems.filter(i => i.size === cond.size);
     if (affectedItems.length === 0) return { amount: 0, label: '' };
   }
 
@@ -831,6 +843,7 @@ function calculateCouponDiscount(coupon, cartItems, currentTotal) {
 
   return { amount, label };
 }
+
 
 // ===================== OFFER COUNTDOWN BANNER =====================
 function getActiveOffers() {
