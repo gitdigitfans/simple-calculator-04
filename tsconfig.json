@@ -11,12 +11,22 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
     "paths": {
-      "~/*": ["./src/*"]
-    },
-    "baseUrl": "."
+      "~/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["app/**/*.ts", "app/**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
