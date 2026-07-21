@@ -1034,7 +1034,7 @@ async function placeOrder() {
   let discountTotal = autoDiscounts.reduce((s, d) => s + d.discountAmount, 0);
   let couponDiscount = 0;
   if (appliedCouponCode) {
-    const coupon = coupons.find(c => c.code === appliedCouponCode && !c.auto_apply);
+    const coupon = coupons.find(c => c.code === appliedCouponCode && c.active !== false);
     if (coupon) {
       const result = calculateCouponDiscount(coupon, cart, subtotal - discountTotal);
       couponDiscount = result.amount;
