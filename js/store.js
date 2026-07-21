@@ -1,3 +1,37 @@
+// Static hosting navigation compatibility
+function getStaticPageUrl(pathname, search = '') {
+  const staticPages = new Set(['/products', '/about', '/contact', '/dashboard', '/admin', '/checkout', '/thank-you']);
+
+  if (pathname === '/' || pathname === '/index.html') return '/' + search;
+  if (staticPages.has(pathname)) return pathname + '.html' + search;
+
+  if (pathname.startsWith('/product/')) {
+    const id = pathname.split('/').filter(Boolean).pop();
+    return id ? '/product.html?id=' + encodeURIComponent(id) : '/products.html';
+  }
+
+  return null;
+}
+
+function goToPage(pathname, search = '') {
+  const staticUrl = getStaticPageUrl(pathname, search);
+  window.location.href = staticUrl || (pathname + search);
+}
+
+document.addEventListener('click', (event) => {
+  const link = event.target.closest('a[href]');
+  if (!link || link.target === '_blank' || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  const url = new URL(link.getAttribute('href'), window.location.origin);
+  if (url.origin !== window.location.origin) return;
+
+  const staticUrl = getStaticPageUrl(url.pathname, url.search);
+  if (!staticUrl || staticUrl === window.location.pathname + window.location.search) return;
+
+  event.preventDefault();
+  window.location.href = staticUrl;
+});
+
 let products = [];
 let categories = [];
 let coupons = [];
@@ -350,7 +384,7 @@ let selectedSize = null;
 let selectedQty = 1;
 
 function openProductDetail(id) {
-  window.location.href = '/product/' + id;
+  goToPage('/product/' + id);
 }
 
 function closeProductDetail() {
@@ -883,7 +917,7 @@ function applyCouponCode() {
 function showCheckout() {
   if (cart.length === 0) return;
   closeCart();
-  window.location.href = '/checkout';
+  goToPage('/checkout');
 }
 
 function closeCheckout() {
@@ -1033,7 +1067,7 @@ async function placeOrder() {
     closeCheckout();
     renderCart();
     localStorage.setItem('cuteKidsLastOrder', JSON.stringify(saved));
-    window.location.href = '/thank-you';
+    goToPage('/thank-you');
   } catch (err) {
     const msg = err.message || err.toString();
     alert((currentLang === 'ar' ? 'حدث خطأ: ' : 'Error: ') + msg);
